@@ -516,7 +516,7 @@
                 lucide.createIcons();
 
                 try {
-                    const response = await fetch(@json(route('signatures.store')), {
+                    const response = await fetch('/signatures', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -594,7 +594,7 @@
                 lucide.createIcons();
 
                 try {
-                    const response = await fetch(@json(route('signatures.otp.send')), {
+                    const response = await fetch('/sign/otp/send', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -643,7 +643,7 @@
                 lucide.createIcons();
 
                 try {
-                    const response = await fetch(@json(route('signatures.otp.verify')), {
+                    const response = await fetch('/sign/otp/verify', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
