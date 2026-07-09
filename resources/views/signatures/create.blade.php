@@ -96,6 +96,10 @@
                 box-shadow: var(--shadow);
             }
 
+            .mobile-bottom-actions {
+                display: none;
+            }
+
             @media (max-width: 860px) {
                 .page {
                     grid-template-columns: 1fr;
@@ -121,6 +125,12 @@
                 .primary-button {
                     min-height: 42px;
                 }
+
+                .mobile-bottom-actions {
+                    display: block;
+                    width: 100%;
+                    padding: 4px 0 10px;
+                }
             }
         </style>
     </head>
@@ -137,6 +147,12 @@
 
             <main class="viewer">
                 <div id="pdfPages" class="pdf-pages"></div>
+                <section class="mobile-bottom-actions">
+                    <button class="primary-button sign-now-button" type="button">
+                        <i data-lucide="pen-line"></i>
+                        Read and Sign
+                    </button>
+                </section>
             </main>
         </div>
 
@@ -150,8 +166,10 @@
             let pdfDocument = null;
             let renderToken = 0;
 
-            document.querySelector('#signNow').addEventListener('click', () => {
-                window.location.href = '/sign';
+            document.querySelectorAll('.sign-now-button, #signNow').forEach((button) => {
+                button.addEventListener('click', () => {
+                    window.location.href = '/sign';
+                });
             });
 
             async function renderAllPages() {
