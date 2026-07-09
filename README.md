@@ -104,3 +104,45 @@ heroku open
 ```
 
 Important Heroku note: files saved under `storage/app`, including signature images and signed PDFs, are not permanent on Heroku's normal dyno filesystem. For production, use persistent storage such as S3-compatible object storage.
+
+## Vercel setup
+
+This app includes `vercel.json` and `api/index.php` for Vercel. Vercel does not run PHP as an official runtime, so the app uses Vercel's recommended community PHP runtime, `vercel-php`.
+
+Recommended Vercel environment variables:
+
+```bash
+APP_NAME="PDF Multi Sign"
+APP_ENV=production
+APP_DEBUG=false
+APP_KEY=base64:your-generated-key
+APP_URL=https://your-vercel-domain.vercel.app
+DB_CONNECTION=mysql
+DB_URL=mysql://username:password@host:3306/database_name
+CACHE_STORE=array
+SESSION_DRIVER=cookie
+QUEUE_CONNECTION=sync
+REPORT_PASSWORD=change-this-password
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.example.com
+MAIL_PORT=587
+MAIL_USERNAME=your-smtp-username
+MAIL_PASSWORD=your-smtp-password
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=no-reply@example.com
+MAIL_FROM_NAME="PDF Sign"
+```
+
+Generate the app key locally:
+
+```bash
+php artisan --no-ansi key:generate --show
+```
+
+Run migrations against the production MySQL database before or after deployment:
+
+```bash
+DB_URL="mysql://username:password@host:3306/database_name" php artisan migrate --force
+```
+
+Vercel filesystem note: Vercel functions have a read-only filesystem except `/tmp`, so signature images and signed PDFs are also saved in MySQL blob columns for report/export access. Use an external MySQL database such as PlanetScale, Aiven, Railway, or another public MySQL provider.

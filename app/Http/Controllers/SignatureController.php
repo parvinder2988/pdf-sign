@@ -173,6 +173,23 @@ class SignatureController extends Controller
             404
         );
 
+        $signature = DriverSignature::query()
+            ->where('signature_path', $path)
+            ->orWhere('signed_pdf_path', $path)
+            ->first();
+
+        if ($signature && $signature->signature_path === $path && $signature->signature_blob !== null) {
+            return response($signature->signature_blob, 200, [
+                'Content-Type' => 'image/png',
+            ]);
+        }
+
+        if ($signature && $signature->signed_pdf_path === $path && $signature->signed_pdf_blob !== null) {
+            return response($signature->signed_pdf_blob, 200, [
+                'Content-Type' => 'application/pdf',
+            ]);
+        }
+
         $fullPath = storage_path("app/{$path}");
         abort_unless(File::exists($fullPath), 404);
 
@@ -216,6 +233,8 @@ class SignatureController extends Controller
             'source_pdf' => 'ilovepdf-merged.pdf',
             'signature_path' => $signaturePath,
             'signed_pdf_path' => $signedPdfPath,
+            'signature_blob' => $signatureBytes,
+            'signed_pdf_blob' => $signedPdfBytes,
             'signed_at' => now(),
         ]);
 
@@ -244,8 +263,13 @@ class SignatureController extends Controller
     private function writeStorageFile(string $path, string $contents): void
     {
         $fullPath = storage_path("app/{$path}");
-        File::ensureDirectoryExists(dirname($fullPath));
-        File::put($fullPath, $contents);
+
+        try {
+            File::ensureDirectoryExists(dirname($fullPath));
+            File::put($fullPath, $contents);
+        } catch (\Throwable) {
+            // Vercel's filesystem is not persistent. The database blob remains the source of truth.
+        }
     }
 
     private function ensureEmailOtpVerified(Request $request, string $email): void

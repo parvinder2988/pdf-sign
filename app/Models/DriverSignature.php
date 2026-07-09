@@ -14,6 +14,8 @@ class DriverSignature extends Model
         'source_pdf',
         'signature_path',
         'signed_pdf_path',
+        'signature_blob',
+        'signed_pdf_blob',
         'signed_at',
     ];
 
