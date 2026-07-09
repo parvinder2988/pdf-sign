@@ -109,10 +109,6 @@
                     <i data-lucide="file-text"></i>
                     View PDF page
                 </a>
-                <a class="secondary" href="/pdfs/ilovepdf-merged.pdf" target="_blank" rel="noopener">
-                    <i data-lucide="external-link"></i>
-                    Open PDF
-                </a>
             </div>
         </main>
 
