@@ -131,11 +131,11 @@
 
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs';
 
-            const pdfUrl = @json(asset('pdfs/ilovepdf-merged.pdf'));
+            const pdfUrl = '/pdfs/ilovepdf-merged.pdf';
             const pdfPages = document.querySelector('#pdfPages');
 
             document.querySelector('#signNow').addEventListener('click', () => {
-                window.location.href = @json(route('signatures.sign'));
+                window.location.href = '/sign';
             });
 
             async function renderAllPages() {
