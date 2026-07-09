@@ -251,10 +251,6 @@
                             <i data-lucide="arrow-left"></i>
                             PDF page
                         </a>
-                        <a class="back-link" href="{{ route('signatures.report') }}">
-                            <i data-lucide="table"></i>
-                            Report
-                        </a>
                     </div>
                 </header>
 
