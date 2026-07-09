@@ -212,6 +212,12 @@
                 font-weight: 700;
             }
 
+            .status:focus {
+                outline: 3px solid rgba(14, 124, 102, 0.18);
+                outline-offset: 4px;
+                border-radius: 6px;
+            }
+
             @media (max-width: 640px) {
                 .header,
                 .actions {
@@ -294,7 +300,7 @@
                         <canvas id="signaturePad" width="720" height="260"></canvas>
                     </div>
 
-                    <p id="status" class="status">Draw the signature, then submit your signed confirmation.</p>
+                    <p id="status" class="status" tabindex="-1">Draw the signature, then submit your signed confirmation.</p>
                 </div>
 
                 <footer class="actions">
@@ -580,6 +586,17 @@
             function showError(message) {
                 statusText.textContent = message;
                 statusText.classList.add('error');
+                scrollToStatus();
+            }
+
+            function scrollToStatus() {
+                window.requestAnimationFrame(() => {
+                    statusText.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center',
+                    });
+                    statusText.focus({ preventScroll: true });
+                });
             }
 
             async function sendEmailOtp() {
@@ -617,6 +634,7 @@
 
                     setEmailVerified(false);
                     statusText.textContent = result.message;
+                    scrollToStatus();
                 } catch (error) {
                     showError(error.message);
                 } finally {
@@ -668,6 +686,7 @@
 
                     setEmailVerified(true);
                     statusText.textContent = result.message;
+                    scrollToStatus();
                 } catch (error) {
                     setEmailVerified(false);
                     showError(error.message);
