@@ -92,13 +92,19 @@ class SignatureController extends Controller
         $expiresAt = now()->addMinutes(10);
         $codeHash = hash('sha256', $otp);
 
-        $signatureOtp = SignatureOtp::create([
-            'email' => $validated['email'],
-            'code' => $otp,
-            'code_hash' => $codeHash,
-            'ip_address' => $request->ip(),
-            'expires_at' => $expiresAt,
-        ]);
+        try {
+            $signatureOtp = SignatureOtp::create([
+                'email' => $validated['email'],
+                'code' => $otp,
+                'code_hash' => $codeHash,
+                'ip_address' => $request->ip(),
+                'expires_at' => $expiresAt,
+            ]);
+        } catch (\Throwable $exception) {
+            return response()->json([
+                'message' => 'Unable to save the OTP request. Please try again.',
+            ], 500);
+        }
 
         $request->session()->put('signature_otp', [
             'id' => $signatureOtp->id,
@@ -108,10 +114,19 @@ class SignatureController extends Controller
             'verified' => false,
         ]);
 
-        Mail::raw("Your signing OTP is {$otp}. It expires in 10 minutes.", function ($message) use ($validated) {
-            $message->to($validated['email'])
-                ->subject('Your signing OTP');
-        });
+        try {
+            Mail::raw("Your signing OTP is {$otp}. It expires in 10 minutes.", function ($message) use ($validated) {
+                $message->to($validated['email'])
+                    ->subject('Your signing OTP');
+            });
+        } catch (\Throwable $exception) {
+            $request->session()->forget('signature_otp');
+            $signatureOtp->delete();
+
+            return response()->json([
+                'message' => 'Unable to send OTP email. Please check the mail settings and try again.',
+            ], 500);
+        }
 
         return response()->json([
             'message' => 'OTP sent to the email address.',
