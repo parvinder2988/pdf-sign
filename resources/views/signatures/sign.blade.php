@@ -298,7 +298,7 @@
                         <canvas id="signaturePad" width="720" height="260"></canvas>
                     </div>
 
-                    <p id="status" class="status">Draw the signature, then save or export the signed page.</p>
+                    <p id="status" class="status">Draw the signature, then submit your signed confirmation.</p>
                 </div>
 
                 <footer class="actions">
@@ -307,8 +307,8 @@
                         Clear
                     </button>
                     <button id="exportPdf" class="primary" type="button">
-                        <i data-lucide="download"></i>
-                        Save and export signed PDF
+                        <i data-lucide="check-circle"></i>
+                        Submit signature
                     </button>
                 </footer>
             </section>
@@ -363,7 +363,7 @@
                 ctx.lineJoin = 'round';
                 hasInk = false;
                 statusText.classList.remove('error');
-                statusText.textContent = 'Draw the signature, then save or export the signed page.';
+                statusText.textContent = 'Draw the signature, then submit your signed confirmation.';
             }
 
             function position(event) {
@@ -442,7 +442,7 @@
                 }
 
                 if (!hasInk) {
-                    showError('Please draw the signature before exporting.');
+                    showError('Please draw the signature before submitting.');
                     return;
                 }
 
@@ -540,13 +540,17 @@
                         throw new Error(result.message || 'Unable to save the signature.');
                     }
 
-                    statusText.textContent = `Saved signature record #${result.id}. Downloading signed PDF.`;
-                    downloadBlob(new Blob([bytes], { type: 'application/pdf' }), 'driver-signature.pdf');
+                    statusText.textContent = 'Thank you. Your signature has been saved successfully.';
+                    exportPdf.innerHTML = '<i data-lucide="check-circle"></i> Signature saved';
                 } catch (error) {
                     showError(error.message);
                 } finally {
-                    exportPdf.disabled = false;
-                    exportPdf.innerHTML = '<i data-lucide="download"></i> Save and export signed PDF';
+                    if (!statusText.classList.contains('error')) {
+                        exportPdf.disabled = true;
+                    } else {
+                        exportPdf.disabled = false;
+                        exportPdf.innerHTML = '<i data-lucide="check-circle"></i> Submit signature';
+                    }
                     lucide.createIcons();
                 }
             }
@@ -675,17 +679,6 @@
                     verifyOtp.innerHTML = '<i data-lucide="badge-check"></i> Verify';
                     lucide.createIcons();
                 }
-            }
-
-            function downloadBlob(blob, name) {
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = name;
-                document.body.append(link);
-                link.click();
-                link.remove();
-                URL.revokeObjectURL(url);
             }
 
             function bytesToBase64(bytes) {
