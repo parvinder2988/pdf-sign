@@ -26,6 +26,11 @@ class SignatureController extends Controller
         return view('signatures.sign');
     }
 
+    public function thanks(): View
+    {
+        return view('signatures.thanks');
+    }
+
     public function reportLogin(): View|RedirectResponse
     {
         if (session('signatures_report_unlocked') === true) {

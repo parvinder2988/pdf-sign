@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [SignatureController::class, 'create'])->name('signatures.create');
 Route::get('/sign', [SignatureController::class, 'sign'])->name('signatures.sign');
+Route::get('/sign/thanks', [SignatureController::class, 'thanks'])->name('signatures.thanks');
 Route::post('/sign/otp/send', [SignatureController::class, 'sendOtp'])->name('signatures.otp.send');
 Route::post('/sign/otp/verify', [SignatureController::class, 'verifyOtp'])->name('signatures.otp.verify');
 Route::post('/signatures', [SignatureController::class, 'store'])->name('signatures.store');

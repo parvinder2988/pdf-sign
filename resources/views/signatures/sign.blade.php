@@ -542,6 +542,7 @@
 
                     statusText.textContent = 'Thank you. Your signature has been saved successfully.';
                     exportPdf.innerHTML = '<i data-lucide="check-circle"></i> Signature saved';
+                    window.location.href = '/sign/thanks';
                 } catch (error) {
                     showError(error.message);
                 } finally {
