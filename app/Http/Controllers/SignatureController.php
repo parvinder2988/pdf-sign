@@ -224,12 +224,26 @@ class SignatureController extends Controller
         ]);
 
         $validated['email'] = mb_strtolower($validated['email']);
+        $validated['driver_number'] = trim($validated['driver_number']);
+        $validated['driver_run_number'] = trim($validated['driver_run_number']);
 
         $this->ensureEmailOtpVerified($request, $validated['email']);
 
         if ($this->emailAlreadySigned($validated['email'])) {
             return response()->json([
                 'message' => 'This email has already submitted a signature. Each email can sign only once.',
+            ], 422);
+        }
+
+        if ($this->driverNumberAlreadySigned($validated['driver_number'])) {
+            return response()->json([
+                'message' => 'This driver number has already submitted a signature. Each driver number can sign only once.',
+            ], 422);
+        }
+
+        if ($this->driverRunNumberAlreadySigned($validated['driver_run_number'])) {
+            return response()->json([
+                'message' => 'This driver run number has already submitted a signature. Each driver run number can sign only once.',
             ], 422);
         }
 
@@ -262,7 +276,7 @@ class SignatureController extends Controller
             ]);
         } catch (\Illuminate\Database\UniqueConstraintViolationException) {
             return response()->json([
-                'message' => 'This email has already submitted a signature. Each email can sign only once.',
+                'message' => 'This email, driver number, or driver run number has already submitted a signature. Each value can be used only once.',
             ], 422);
         }
 
@@ -313,6 +327,20 @@ class SignatureController extends Controller
     {
         return DriverSignature::query()
             ->where('email', mb_strtolower($email))
+            ->exists();
+    }
+
+    private function driverNumberAlreadySigned(string $driverNumber): bool
+    {
+        return DriverSignature::query()
+            ->where('driver_number', $driverNumber)
+            ->exists();
+    }
+
+    private function driverRunNumberAlreadySigned(string $driverRunNumber): bool
+    {
+        return DriverSignature::query()
+            ->where('driver_run_number', $driverRunNumber)
             ->exists();
     }
 
