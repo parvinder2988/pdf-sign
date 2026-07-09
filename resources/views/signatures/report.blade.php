@@ -214,7 +214,7 @@
                                     <td>
                                         <img
                                             class="signature-img"
-                                            src="{{ route('signatures.file', ['path' => $signature->signature_path]) }}"
+                                            src="{{ $signature->signature_blob !== null ? 'data:image/png;base64,'.base64_encode($signature->signature_blob) : route('signatures.file', ['path' => $signature->signature_path]) }}"
                                             alt="Signature for {{ $signature->name }}"
                                         >
                                     </td>
@@ -262,12 +262,9 @@
                     page.drawText(truncate(row.signedPdfPath, 28), { x: 650, y, size: 7, font: regular, color: rgb(0.35, 0.43, 0.44) });
 
                     try {
-                        const signatureBytes = await fetch(row.signatureUrl, {
-                            headers: {
-                                'ngrok-skip-browser-warning': 'true',
-                            },
-                        }).then((response) => response.arrayBuffer());
-                        const image = await documentPdf.embedPng(signatureBytes);
+                        const image = row.signatureDataUrl
+                            ? await documentPdf.embedPng(row.signatureDataUrl)
+                            : await fetchSignatureImage(documentPdf, row.signatureUrl);
                         const dimensions = image.scale(Math.min(88 / image.width, 30 / image.height));
                         page.drawImage(image, {
                             x: 562,
@@ -336,6 +333,20 @@
                 }
 
                 return `${value.slice(0, length - 1)}...`;
+            }
+
+            async function fetchSignatureImage(documentPdf, url) {
+                const response = await fetch(url, {
+                    headers: {
+                        'ngrok-skip-browser-warning': 'true',
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error('Signature image unavailable.');
+                }
+
+                return documentPdf.embedPng(await response.arrayBuffer());
             }
 
             function downloadBlob(blob, name) {

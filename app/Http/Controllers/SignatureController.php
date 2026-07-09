@@ -172,6 +172,7 @@ class SignatureController extends Controller
                 'driverRunNumber' => $signature->driver_run_number,
                 'signedAt' => optional($signature->signed_at)->format('Y-m-d H:i'),
                 'signatureUrl' => route('signatures.file', ['path' => $signature->signature_path]),
+                'signatureDataUrl' => $this->signatureDataUrl($signature),
                 'signedPdfPath' => $signature->signed_pdf_path,
             ])->values(),
         ]);
@@ -313,6 +314,21 @@ class SignatureController extends Controller
         return DriverSignature::query()
             ->where('email', mb_strtolower($email))
             ->exists();
+    }
+
+    private function signatureDataUrl(DriverSignature $signature): ?string
+    {
+        if ($signature->signature_blob !== null) {
+            return 'data:image/png;base64,'.base64_encode($signature->signature_blob);
+        }
+
+        $fullPath = storage_path("app/{$signature->signature_path}");
+
+        if (File::exists($fullPath)) {
+            return 'data:image/png;base64,'.base64_encode(File::get($fullPath));
+        }
+
+        return null;
     }
 
     private function ensureReportAccess(): void
