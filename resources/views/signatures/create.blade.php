@@ -139,7 +139,12 @@
             });
 
             async function renderAllPages() {
-                const documentProxy = await pdfjsLib.getDocument({ url: pdfUrl }).promise;
+                const documentProxy = await pdfjsLib.getDocument({
+                    url: pdfUrl,
+                    httpHeaders: {
+                        'ngrok-skip-browser-warning': 'true',
+                    },
+                }).promise;
 
                 for (let pageNumber = 1; pageNumber <= documentProxy.numPages; pageNumber += 1) {
                     const page = await documentProxy.getPage(pageNumber);

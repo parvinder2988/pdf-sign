@@ -522,6 +522,7 @@
                             'Content-Type': 'application/json',
                             'Accept': 'application/json',
                             'X-CSRF-TOKEN': csrfToken,
+                            'ngrok-skip-browser-warning': 'true',
                         },
                         body: JSON.stringify({
                             name: driverName.value.trim(),
@@ -600,6 +601,7 @@
                             'Content-Type': 'application/json',
                             'Accept': 'application/json',
                             'X-CSRF-TOKEN': csrfToken,
+                            'ngrok-skip-browser-warning': 'true',
                         },
                         body: JSON.stringify({
                             email: email.value.trim(),
@@ -649,6 +651,7 @@
                             'Content-Type': 'application/json',
                             'Accept': 'application/json',
                             'X-CSRF-TOKEN': csrfToken,
+                            'ngrok-skip-browser-warning': 'true',
                         },
                         body: JSON.stringify({
                             email: email.value.trim(),

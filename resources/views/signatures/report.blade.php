@@ -262,7 +262,11 @@
                     page.drawText(truncate(row.signedPdfPath, 28), { x: 650, y, size: 7, font: regular, color: rgb(0.35, 0.43, 0.44) });
 
                     try {
-                        const signatureBytes = await fetch(row.signatureUrl).then((response) => response.arrayBuffer());
+                        const signatureBytes = await fetch(row.signatureUrl, {
+                            headers: {
+                                'ngrok-skip-browser-warning': 'true',
+                            },
+                        }).then((response) => response.arrayBuffer());
                         const image = await documentPdf.embedPng(signatureBytes);
                         const dimensions = image.scale(Math.min(88 / image.width, 30 / image.height));
                         page.drawImage(image, {
