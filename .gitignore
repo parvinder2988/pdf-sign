@@ -4,11 +4,17 @@
 /bootstrap/cache/*
 /storage/*.key
 /storage/app/driver-signatures/*
+!/storage/app/driver-signatures/.gitkeep
 /storage/app/signed-pdfs/*
+!/storage/app/signed-pdfs/.gitkeep
 /storage/framework/cache/*
+!/storage/framework/cache/.gitkeep
 /storage/framework/sessions/*
+!/storage/framework/sessions/.gitkeep
 /storage/framework/views/*
+!/storage/framework/views/.gitkeep
 /storage/logs/*
+!/storage/logs/.gitkeep
 /database/database.sqlite
 /.env
 /.phpunit.cache

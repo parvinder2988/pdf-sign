@@ -2,7 +2,9 @@
     "name": "pdf-sign/application",
     "type": "project",
     "description": "Laravel PDF multi-signature collection app.",
+    "license": "proprietary",
     "require": {
+        "ext-pdo_mysql": "*",
         "php": "^8.2",
         "laravel/framework": "^12.0"
     },

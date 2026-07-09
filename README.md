@@ -65,3 +65,42 @@ http://127.0.0.1/application/
 - The exported `driver-signature.pdf` is generated in the browser.
 - The report page exports all saved signatures in table format as `signature-report.pdf`.
 - The report page and stored signature files are password protected.
+
+## Heroku setup
+
+This app includes a `Procfile` so Heroku serves Laravel from the `public/` folder.
+
+Create and configure the Heroku app:
+
+```bash
+heroku create your-app-name
+heroku config:set APP_NAME="PDF Multi Sign"
+heroku config:set APP_ENV=production
+heroku config:set APP_DEBUG=false
+heroku config:set APP_KEY="$(php artisan --no-ansi key:generate --show)"
+heroku config:set LOG_CHANNEL=errorlog
+heroku config:set CACHE_STORE=file
+heroku config:set SESSION_DRIVER=file
+heroku config:set QUEUE_CONNECTION=sync
+heroku config:set REPORT_PASSWORD="change-this-password"
+heroku config:set MAIL_MAILER=log
+```
+
+Add a MySQL database add-on, then set one database URL variable:
+
+```bash
+heroku config:set DB_CONNECTION=mysql
+heroku config:set DB_URL="mysql://username:password@host:3306/database_name"
+```
+
+If your MySQL add-on provides `JAWSDB_URL` or `CLEARDB_DATABASE_URL`, the app can read that automatically.
+
+Deploy and migrate:
+
+```bash
+git push heroku main
+heroku run php artisan migrate --force
+heroku open
+```
+
+Important Heroku note: files saved under `storage/app`, including signature images and signed PDFs, are not permanent on Heroku's normal dyno filesystem. For production, use persistent storage such as S3-compatible object storage.
