@@ -39,6 +39,40 @@ if ($requestPath === '/__diagnostics') {
     return;
 }
 
+if ($requestPath === '/__laravel-debug') {
+    header('Content-Type: application/json');
+
+    try {
+        require __DIR__.'/../vendor/autoload.php';
+
+        $app = require __DIR__.'/../bootstrap/app.php';
+        $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
+        $request = Illuminate\Http\Request::create('/', 'GET');
+        $response = $kernel->handle($request);
+
+        echo json_encode([
+            'status' => $response->getStatusCode(),
+            'content_type' => $response->headers->get('Content-Type'),
+            'content_length' => strlen($response->getContent()),
+            'storage_path' => storage_path(),
+            'view_compiled' => config('view.compiled'),
+            'session_driver' => config('session.driver'),
+            'cache_default' => config('cache.default'),
+        ], JSON_PRETTY_PRINT);
+
+        $kernel->terminate($request, $response);
+    } catch (Throwable $exception) {
+        echo json_encode([
+            'exception' => get_class($exception),
+            'message' => $exception->getMessage(),
+            'file' => $exception->getFile(),
+            'line' => $exception->getLine(),
+        ], JSON_PRETTY_PRINT);
+    }
+
+    return;
+}
+
 $publicFile = realpath(__DIR__.'/../public'.$requestPath);
 $publicRoot = realpath(__DIR__.'/../public');
 
