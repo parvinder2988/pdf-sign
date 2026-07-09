@@ -77,7 +77,7 @@
                 min-width: 0;
                 display: grid;
                 place-items: start center;
-                padding: 24px;
+                padding: clamp(10px, 3vw, 24px);
                 overflow: auto;
             }
 
@@ -89,7 +89,8 @@
             }
 
             .pdf-page {
-                max-width: 100%;
+                width: 100%;
+                max-width: 960px;
                 height: auto;
                 background: white;
                 box-shadow: var(--shadow);
@@ -104,8 +105,21 @@
                     position: static;
                     height: auto;
                     align-content: start;
+                    padding: 12px;
                     border-right: 0;
                     border-bottom: 1px solid var(--line);
+                }
+
+                .viewer {
+                    padding: 10px 6px 18px;
+                }
+
+                .pdf-pages {
+                    gap: 14px;
+                }
+
+                .primary-button {
+                    min-height: 42px;
                 }
             }
         </style>
@@ -133,29 +147,44 @@
 
             const pdfUrl = '/pdfs/ilovepdf-merged.pdf';
             const pdfPages = document.querySelector('#pdfPages');
+            let pdfDocument = null;
+            let renderToken = 0;
 
             document.querySelector('#signNow').addEventListener('click', () => {
                 window.location.href = '/sign';
             });
 
             async function renderAllPages() {
-                const documentProxy = await pdfjsLib.getDocument({
-                    url: pdfUrl,
-                    httpHeaders: {
-                        'ngrok-skip-browser-warning': 'true',
-                    },
-                }).promise;
+                const token = ++renderToken;
 
-                for (let pageNumber = 1; pageNumber <= documentProxy.numPages; pageNumber += 1) {
-                    const page = await documentProxy.getPage(pageNumber);
-                    const viewport = page.getViewport({ scale: 1.45 });
-                    const scale = window.devicePixelRatio || 1;
+                if (!pdfDocument) {
+                    pdfDocument = await pdfjsLib.getDocument({
+                        url: pdfUrl,
+                        httpHeaders: {
+                            'ngrok-skip-browser-warning': 'true',
+                        },
+                    }).promise;
+                }
+
+                pdfPages.replaceChildren();
+                const availableWidth = Math.max(280, pdfPages.clientWidth);
+
+                for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber += 1) {
+                    if (token !== renderToken) {
+                        return;
+                    }
+
+                    const page = await pdfDocument.getPage(pageNumber);
+                    const unscaledViewport = page.getViewport({ scale: 1 });
+                    const pageScale = Math.min(1.65, availableWidth / unscaledViewport.width);
+                    const viewport = page.getViewport({ scale: pageScale });
+                    const outputScale = Math.min(window.devicePixelRatio || 1, 2.25);
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
 
                     canvas.className = 'pdf-page';
-                    canvas.width = Math.floor(viewport.width * scale);
-                    canvas.height = Math.floor(viewport.height * scale);
+                    canvas.width = Math.floor(viewport.width * outputScale);
+                    canvas.height = Math.floor(viewport.height * outputScale);
                     canvas.style.width = `${Math.floor(viewport.width)}px`;
                     canvas.style.height = `${Math.floor(viewport.height)}px`;
                     pdfPages.append(canvas);
@@ -163,13 +192,23 @@
                     await page.render({
                         canvasContext: ctx,
                         viewport,
-                        transform: scale !== 1 ? [scale, 0, 0, scale, 0, 0] : null,
+                        transform: outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null,
                     }).promise;
                 }
             }
 
             lucide.createIcons();
             renderAllPages();
+            window.addEventListener('resize', debounce(renderAllPages, 180));
+
+            function debounce(callback, delay) {
+                let timeout = null;
+
+                return () => {
+                    window.clearTimeout(timeout);
+                    timeout = window.setTimeout(callback, delay);
+                };
+            }
         </script>
     </body>
 </html>
