@@ -65,6 +65,14 @@ class SignatureController extends Controller
             'email' => ['required', 'email', 'max:255'],
         ]);
 
+        $validated['email'] = mb_strtolower($validated['email']);
+
+        if ($this->emailAlreadySigned($validated['email'])) {
+            return response()->json([
+                'message' => 'This email has already submitted a signature. Each email can sign only once.',
+            ], 422);
+        }
+
         $key = 'signature-otp:'.$request->ip().':'.$validated['email'];
 
         if (RateLimiter::tooManyAttempts($key, 5)) {
@@ -209,7 +217,15 @@ class SignatureController extends Controller
             'signed_pdf_base64' => ['required', 'string'],
         ]);
 
+        $validated['email'] = mb_strtolower($validated['email']);
+
         $this->ensureEmailOtpVerified($request, $validated['email']);
+
+        if ($this->emailAlreadySigned($validated['email'])) {
+            return response()->json([
+                'message' => 'This email has already submitted a signature. Each email can sign only once.',
+            ], 422);
+        }
 
         $signatureBytes = $this->decodeDataUrl($validated['signature_data_url'], 'image/png');
         $signedPdfBytes = base64_decode($validated['signed_pdf_base64'], true);
@@ -225,18 +241,24 @@ class SignatureController extends Controller
         $this->writeStorageFile($signaturePath, $signatureBytes);
         $this->writeStorageFile($signedPdfPath, $signedPdfBytes);
 
-        $signature = DriverSignature::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'driver_number' => $validated['driver_number'],
-            'driver_run_number' => $validated['driver_run_number'],
-            'source_pdf' => 'ilovepdf-merged.pdf',
-            'signature_path' => $signaturePath,
-            'signed_pdf_path' => $signedPdfPath,
-            'signature_blob' => $signatureBytes,
-            'signed_pdf_blob' => $signedPdfBytes,
-            'signed_at' => now(),
-        ]);
+        try {
+            $signature = DriverSignature::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'driver_number' => $validated['driver_number'],
+                'driver_run_number' => $validated['driver_run_number'],
+                'source_pdf' => 'ilovepdf-merged.pdf',
+                'signature_path' => $signaturePath,
+                'signed_pdf_path' => $signedPdfPath,
+                'signature_blob' => $signatureBytes,
+                'signed_pdf_blob' => $signedPdfBytes,
+                'signed_at' => now(),
+            ]);
+        } catch (\Illuminate\Database\UniqueConstraintViolationException) {
+            return response()->json([
+                'message' => 'This email has already submitted a signature. Each email can sign only once.',
+            ], 422);
+        }
 
         return response()->json([
             'id' => $signature->id,
@@ -279,6 +301,13 @@ class SignatureController extends Controller
         if (! $otp || $otp['email'] !== $email || $otp['verified'] !== true || $otp['expires_at'] < now()->timestamp) {
             abort(422, 'Please verify the email OTP before signing.');
         }
+    }
+
+    private function emailAlreadySigned(string $email): bool
+    {
+        return DriverSignature::query()
+            ->where('email', mb_strtolower($email))
+            ->exists();
     }
 
     private function ensureReportAccess(): void
