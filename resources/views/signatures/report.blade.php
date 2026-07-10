@@ -235,7 +235,7 @@
                                     <td>{{ $signature->name }}</td>
                                     <td>{{ $signature->driver_number }}</td>
                                     <td>{{ $signature->driver_run_number }}</td>
-                                    <td>{{ optional($signature->signed_at)->format('M d, Y h:i A') }}</td>
+                                    <td>{{ optional($signature->signed_at)->timezone('Australia/Melbourne')->format('M d, Y h:i A T') }}</td>
                                     <td>
                                         <img
                                             class="signature-img"
