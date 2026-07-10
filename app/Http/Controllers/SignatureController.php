@@ -224,6 +224,19 @@ class SignatureController extends Controller
         ]);
     }
 
+    public function destroy(DriverSignature $signature): RedirectResponse
+    {
+        $this->ensureReportAccess();
+
+        $this->deleteStorageFile($signature->signature_path);
+        $this->deleteStorageFile($signature->signed_pdf_path);
+        $signature->delete();
+
+        return redirect()
+            ->route('signatures.report')
+            ->with('status', 'Signature record deleted.');
+    }
+
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -323,6 +336,19 @@ class SignatureController extends Controller
             File::put($fullPath, $contents);
         } catch (\Throwable) {
             // Vercel's filesystem is not persistent. The database blob remains the source of truth.
+        }
+    }
+
+    private function deleteStorageFile(?string $path): void
+    {
+        if (! $path) {
+            return;
+        }
+
+        $fullPath = storage_path("app/{$path}");
+
+        if (File::exists($fullPath)) {
+            File::delete($fullPath);
         }
     }
 

@@ -13,6 +13,7 @@ Route::get('/signatures/report/login', [SignatureController::class, 'reportLogin
 Route::post('/signatures/report/login', [SignatureController::class, 'reportAuthenticate'])->name('signatures.report.authenticate');
 Route::post('/signatures/report/logout', [SignatureController::class, 'reportLogout'])->name('signatures.report.logout');
 Route::get('/signatures/report', [SignatureController::class, 'report'])->name('signatures.report');
+Route::delete('/signatures/report/{signature}', [SignatureController::class, 'destroy'])->name('signatures.destroy');
 Route::get('/signatures/files/{path}', [SignatureController::class, 'file'])
     ->where('path', '.*')
     ->name('signatures.file');

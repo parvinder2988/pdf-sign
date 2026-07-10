@@ -94,6 +94,26 @@
                 color: var(--ink);
             }
 
+            .danger {
+                border: 1px solid #d9a7a0;
+                background: #fff5f3;
+                color: #9d2f20;
+            }
+
+            .danger:hover {
+                background: #ffe8e4;
+            }
+
+            .notice {
+                margin-bottom: 16px;
+                padding: 12px 14px;
+                border: 1px solid #b8d8ce;
+                border-radius: 8px;
+                background: #eef9f4;
+                color: #0b604f;
+                font-weight: 700;
+            }
+
             .table-wrap {
                 overflow: auto;
                 background: var(--paper);
@@ -137,6 +157,11 @@
                 background: white;
                 border: 1px solid var(--line);
                 border-radius: 6px;
+            }
+
+            .row-actions {
+                display: flex;
+                justify-content: flex-end;
             }
 
             .empty {
@@ -185,6 +210,10 @@
                 </div>
             </header>
 
+            @if (session('status'))
+                <div class="notice">{{ session('status') }}</div>
+            @endif
+
             <section class="table-wrap">
                 @if ($signatures->isEmpty())
                     <div class="empty">No signatures saved yet.</div>
@@ -197,6 +226,7 @@
                                 <th>Driver run number</th>
                                 <th>Signed at</th>
                                 <th>Signature</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -213,6 +243,21 @@
                                             alt="Signature for {{ $signature->name }}"
                                         >
                                     </td>
+                                    <td>
+                                        <form
+                                            class="row-actions delete-signature-form"
+                                            method="post"
+                                            action="{{ route('signatures.destroy', $signature) }}"
+                                            data-name="{{ $signature->name }}"
+                                        >
+                                            @csrf
+                                            @method('DELETE')
+                                            <button class="danger" type="submit" title="Delete signature record">
+                                                <i data-lucide="trash-2"></i>
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -225,6 +270,15 @@
             const rows = @json($reportRows);
 
             document.querySelector('#exportReport')?.addEventListener('click', exportReportPdf);
+            document.querySelectorAll('.delete-signature-form').forEach((form) => {
+                form.addEventListener('submit', (event) => {
+                    const name = form.dataset.name || 'this record';
+
+                    if (!window.confirm(`Delete ${name}? This cannot be undone.`)) {
+                        event.preventDefault();
+                    }
+                });
+            });
 
             async function exportReportPdf() {
                 const { PDFDocument, StandardFonts, rgb } = PDFLib;
