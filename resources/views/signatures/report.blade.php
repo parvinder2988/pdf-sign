@@ -189,7 +189,7 @@
         <main class="page">
             <header class="topbar">
                 <div>
-                    <h1>Signature report</h1>
+                    <h1>DRIVER SIGNATURES StarTrack API Drivers and Contractors — Victoria</h1>
                     <p>{{ $signatures->count() }} saved {{ Str::plural('signature', $signatures->count()) }}</p>
                 </div>
                 <div class="toolbar">
@@ -343,16 +343,23 @@
             }
 
             function drawTitle(page, bold, regular, rgb, count) {
-                page.drawText('Signature report', {
+                page.drawText('DRIVER SIGNATURES', {
                     x: 30,
                     y: 562,
                     size: 18,
                     font: bold,
                     color: rgb(0.09, 0.15, 0.16),
                 });
-                page.drawText(`${count} saved ${count === 1 ? 'signature' : 'signatures'}`, {
+                page.drawText('StarTrack API Drivers and Contractors - Victoria', {
                     x: 30,
                     y: 542,
+                    size: 10,
+                    font: regular,
+                    color: rgb(0.09, 0.15, 0.16),
+                });
+                page.drawText(`${count} saved ${count === 1 ? 'signature' : 'signatures'}`, {
+                    x: 30,
+                    y: 526,
                     size: 9,
                     font: regular,
                     color: rgb(0.35, 0.43, 0.44),
