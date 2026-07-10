@@ -335,6 +335,8 @@
             let isDrawing = false;
             let hasInk = false;
             let isEmailVerified = false;
+            let otpCooldownTimer = null;
+            let isOtpCoolingDown = false;
             const pdfDisplayName = 'ilovepdf-merged.pdf';
 
             function setEmailVerified(value) {
@@ -599,6 +601,39 @@
                 });
             }
 
+            function resetSendOtpButton() {
+                sendOtp.disabled = false;
+                sendOtp.innerHTML = '<i data-lucide="mail"></i> Send OTP';
+                lucide.createIcons();
+            }
+
+            function startOtpCooldown(seconds = 10) {
+                window.clearInterval(otpCooldownTimer);
+                isOtpCoolingDown = true;
+
+                let remaining = seconds;
+                const updateButton = () => {
+                    sendOtp.disabled = true;
+                    sendOtp.innerHTML = `<i data-lucide="clock"></i> Resend in ${remaining}s`;
+                    lucide.createIcons();
+                };
+
+                updateButton();
+                otpCooldownTimer = window.setInterval(() => {
+                    remaining -= 1;
+
+                    if (remaining <= 0) {
+                        window.clearInterval(otpCooldownTimer);
+                        otpCooldownTimer = null;
+                        isOtpCoolingDown = false;
+                        resetSendOtpButton();
+                        return;
+                    }
+
+                    updateButton();
+                }, 1000);
+            }
+
             async function sendEmailOtp() {
                 statusText.classList.remove('error');
 
@@ -633,14 +668,15 @@
                     }
 
                     setEmailVerified(false);
-                    statusText.textContent = result.message;
+                    statusText.textContent = `${result.message} Please check your inbox and spam or junk folder.`;
                     scrollToStatus();
+                    startOtpCooldown(10);
                 } catch (error) {
                     showError(error.message);
                 } finally {
-                    sendOtp.disabled = false;
-                    sendOtp.innerHTML = '<i data-lucide="mail"></i> Send OTP';
-                    lucide.createIcons();
+                    if (!isOtpCoolingDown) {
+                        resetSendOtpButton();
+                    }
                 }
             }
 
