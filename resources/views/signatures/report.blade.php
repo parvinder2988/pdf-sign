@@ -192,25 +192,20 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>ID</th>
                                 <th>Name</th>
-                                <th>Email</th>
                                 <th>Driver number</th>
                                 <th>Driver run number</th>
                                 <th>Signed at</th>
                                 <th>Signature</th>
-                                <th>Signed PDF path</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($signatures as $signature)
                                 <tr>
-                                    <td>{{ $signature->id }}</td>
                                     <td>{{ $signature->name }}</td>
-                                    <td>{{ $signature->email }}</td>
                                     <td>{{ $signature->driver_number }}</td>
                                     <td>{{ $signature->driver_run_number }}</td>
-                                    <td>{{ optional($signature->signed_at)->format('Y-m-d H:i') }}</td>
+                                    <td>{{ optional($signature->signed_at)->format('M d, Y h:i A') }}</td>
                                     <td>
                                         <img
                                             class="signature-img"
@@ -218,7 +213,6 @@
                                             alt="Signature for {{ $signature->name }}"
                                         >
                                     </td>
-                                    <td>{{ $signature->signed_pdf_path }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -253,27 +247,24 @@
                         y -= 30;
                     }
 
-                    page.drawText(String(row.id), { x: 34, y, size: 9, font: regular, color: rgb(0.09, 0.15, 0.16) });
-                    page.drawText(truncate(row.name, 18), { x: 64, y, size: 8, font: regular, color: rgb(0.09, 0.15, 0.16) });
-                    page.drawText(truncate(row.email, 24), { x: 156, y, size: 8, font: regular, color: rgb(0.09, 0.15, 0.16) });
-                    page.drawText(truncate(row.driverNumber, 16), { x: 278, y, size: 8, font: regular, color: rgb(0.09, 0.15, 0.16) });
-                    page.drawText(truncate(row.driverRunNumber, 16), { x: 378, y, size: 8, font: regular, color: rgb(0.09, 0.15, 0.16) });
-                    page.drawText(row.signedAt || '', { x: 484, y, size: 8, font: regular, color: rgb(0.09, 0.15, 0.16) });
-                    page.drawText(truncate(row.signedPdfPath, 28), { x: 650, y, size: 7, font: regular, color: rgb(0.35, 0.43, 0.44) });
+                    page.drawText(truncate(row.name, 24), { x: 34, y, size: 8, font: regular, color: rgb(0.09, 0.15, 0.16) });
+                    page.drawText(truncate(row.driverNumber, 18), { x: 186, y, size: 8, font: regular, color: rgb(0.09, 0.15, 0.16) });
+                    page.drawText(truncate(row.driverRunNumber, 18), { x: 310, y, size: 8, font: regular, color: rgb(0.09, 0.15, 0.16) });
+                    page.drawText(row.signedAt || '', { x: 438, y, size: 8, font: regular, color: rgb(0.09, 0.15, 0.16) });
 
                     try {
                         const image = row.signatureDataUrl
                             ? await documentPdf.embedPng(row.signatureDataUrl)
                             : await fetchSignatureImage(documentPdf, row.signatureUrl);
-                        const dimensions = image.scale(Math.min(88 / image.width, 30 / image.height));
+                        const dimensions = image.scale(Math.min(142 / image.width, 34 / image.height));
                         page.drawImage(image, {
-                            x: 562,
-                            y: y - 10,
+                            x: 626,
+                            y: y - 12,
                             width: dimensions.width,
                             height: dimensions.height,
                         });
                     } catch (error) {
-                        page.drawText('Unavailable', { x: 562, y, size: 8, font: regular, color: rgb(0.55, 0.24, 0.08) });
+                        page.drawText('Unavailable', { x: 626, y, size: 8, font: regular, color: rgb(0.55, 0.24, 0.08) });
                     }
 
                     page.drawLine({
@@ -317,14 +308,11 @@
                     borderColor: rgb(0.82, 0.87, 0.86),
                     borderWidth: 0.5,
                 });
-                page.drawText('ID', { x: 34, y, size: 8, font: bold, color: rgb(0.09, 0.15, 0.16) });
-                page.drawText('Name', { x: 64, y, size: 8, font: bold, color: rgb(0.09, 0.15, 0.16) });
-                page.drawText('Email', { x: 156, y, size: 8, font: bold, color: rgb(0.09, 0.15, 0.16) });
-                page.drawText('Driver no.', { x: 278, y, size: 8, font: bold, color: rgb(0.09, 0.15, 0.16) });
-                page.drawText('Run no.', { x: 378, y, size: 8, font: bold, color: rgb(0.09, 0.15, 0.16) });
-                page.drawText('Signed at', { x: 484, y, size: 8, font: bold, color: rgb(0.09, 0.15, 0.16) });
-                page.drawText('Signature', { x: 562, y, size: 8, font: bold, color: rgb(0.09, 0.15, 0.16) });
-                page.drawText('Signed PDF path', { x: 650, y, size: 8, font: bold, color: rgb(0.09, 0.15, 0.16) });
+                page.drawText('Name', { x: 34, y, size: 8, font: bold, color: rgb(0.09, 0.15, 0.16) });
+                page.drawText('Driver no.', { x: 186, y, size: 8, font: bold, color: rgb(0.09, 0.15, 0.16) });
+                page.drawText('Run no.', { x: 310, y, size: 8, font: bold, color: rgb(0.09, 0.15, 0.16) });
+                page.drawText('Signed at', { x: 438, y, size: 8, font: bold, color: rgb(0.09, 0.15, 0.16) });
+                page.drawText('Signature', { x: 626, y, size: 8, font: bold, color: rgb(0.09, 0.15, 0.16) });
             }
 
             function truncate(value, length) {

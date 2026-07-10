@@ -180,15 +180,12 @@ class SignatureController extends Controller
         return view('signatures.report', [
             'signatures' => $signatures,
             'reportRows' => $signatures->map(fn (DriverSignature $signature) => [
-                'id' => $signature->id,
                 'name' => $signature->name,
-                'email' => $signature->email,
                 'driverNumber' => $signature->driver_number,
                 'driverRunNumber' => $signature->driver_run_number,
-                'signedAt' => optional($signature->signed_at)->format('Y-m-d H:i'),
+                'signedAt' => optional($signature->signed_at)->format('M d, Y h:i A'),
                 'signatureUrl' => route('signatures.file', ['path' => $signature->signature_path]),
                 'signatureDataUrl' => $this->signatureDataUrl($signature),
-                'signedPdfPath' => $signature->signed_pdf_path,
             ])->values(),
         ]);
     }

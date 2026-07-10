@@ -607,7 +607,7 @@
                 lucide.createIcons();
             }
 
-            function startOtpCooldown(seconds = 10) {
+            function startOtpCooldown(seconds = 20) {
                 window.clearInterval(otpCooldownTimer);
                 isOtpCoolingDown = true;
 
@@ -670,7 +670,7 @@
                     setEmailVerified(false);
                     statusText.textContent = `${result.message} Please check your inbox and spam or junk folder.`;
                     scrollToStatus();
-                    startOtpCooldown(10);
+                    startOtpCooldown(20);
                 } catch (error) {
                     showError(error.message);
                 } finally {
