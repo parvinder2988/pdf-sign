@@ -161,6 +161,7 @@
 
             .row-actions {
                 display: flex;
+                gap: 8px;
                 justify-content: flex-end;
             }
 
@@ -244,19 +245,25 @@
                                         >
                                     </td>
                                     <td>
-                                        <form
-                                            class="row-actions delete-signature-form"
-                                            method="post"
-                                            action="{{ route('signatures.destroy', $signature) }}"
-                                            data-name="{{ $signature->name }}"
-                                        >
-                                            @csrf
-                                            @method('DELETE')
-                                            <button class="danger" type="submit" title="Delete signature record">
-                                                <i data-lucide="trash-2"></i>
-                                                Delete
-                                            </button>
-                                        </form>
+                                        <div class="row-actions">
+                                            <a class="secondary" href="{{ route('signatures.edit', $signature) }}" title="Edit signature details">
+                                                <i data-lucide="pencil"></i>
+                                                Edit
+                                            </a>
+                                            <form
+                                                class="delete-signature-form"
+                                                method="post"
+                                                action="{{ route('signatures.destroy', $signature) }}"
+                                                data-name="{{ $signature->name }}"
+                                            >
+                                                @csrf
+                                                @method('DELETE')
+                                                <button class="danger" type="submit" title="Delete signature record">
+                                                    <i data-lucide="trash-2"></i>
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach

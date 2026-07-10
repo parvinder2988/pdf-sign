@@ -12,6 +12,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
 
 class SignatureController extends Controller
@@ -237,6 +238,60 @@ class SignatureController extends Controller
         return redirect()
             ->route('signatures.report')
             ->with('status', 'Signature record deleted.');
+    }
+
+    public function edit(DriverSignature $signature): View
+    {
+        $this->ensureReportAccess();
+
+        return view('signatures.edit', [
+            'signature' => $signature,
+        ]);
+    }
+
+    public function update(Request $request, DriverSignature $signature): RedirectResponse
+    {
+        $this->ensureReportAccess();
+
+        $request->merge([
+            'name' => trim((string) $request->input('name')),
+            'driver_number' => trim((string) $request->input('driver_number')),
+            'driver_run_number' => trim((string) $request->input('driver_run_number')),
+        ]);
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'driver_number' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('driver_signatures', 'driver_number')->ignore($signature->id),
+            ],
+            'driver_run_number' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('driver_signatures', 'driver_run_number')->ignore($signature->id),
+            ],
+        ]);
+
+        try {
+            $signature->update([
+                'name' => $validated['name'],
+                'driver_number' => $validated['driver_number'],
+                'driver_run_number' => $validated['driver_run_number'],
+            ]);
+        } catch (\Illuminate\Database\UniqueConstraintViolationException) {
+            return back()
+                ->withErrors([
+                    'driver_number' => 'This driver number or driver run number is already used by another signature.',
+                ])
+                ->withInput();
+        }
+
+        return redirect()
+            ->route('signatures.report')
+            ->with('status', 'Signature details updated.');
     }
 
     public function store(Request $request): JsonResponse
