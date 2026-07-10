@@ -174,7 +174,7 @@ class SignatureController extends Controller
         $this->ensureReportAccess();
 
         $signatures = DriverSignature::query()
-            ->latest('signed_at')
+            ->orderBy('id')
             ->get();
 
         return view('signatures.report', [
