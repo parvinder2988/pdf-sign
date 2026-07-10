@@ -115,9 +115,9 @@ class SignatureController extends Controller
         ]);
 
         try {
-            Mail::raw("Your signing OTP is {$otp}. It expires in 10 minutes.", function ($message) use ($validated) {
+            Mail::raw("Your signing OTP is {$otp}. It expires in 10 minutes.", function ($message) use ($validated, $otp) {
                 $message->to($validated['email'])
-                    ->subject('Your signing OTP');
+                    ->subject("Your signing OTP: {$otp}");
             });
         } catch (\Throwable $exception) {
             $request->session()->forget('signature_otp');
