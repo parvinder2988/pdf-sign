@@ -236,7 +236,7 @@
                                     <td>{{ $signature->name }}</td>
                                     <td>{{ $signature->driver_number }}</td>
                                     <td>{{ $signature->driver_run_number }}</td>
-                                    <td>{{ optional($signature->signed_at)->timezone('Australia/Melbourne')->format('M d, Y h:i A T') }}</td>
+                                    <td>{{ optional($signature->signed_at)->timezone('Australia/Melbourne')->format('d/m/Y') }}</td>
                                     <td>
                                         <img
                                             class="signature-img"
@@ -343,23 +343,16 @@
             }
 
             function drawTitle(page, bold, regular, rgb, count) {
-                page.drawText('DRIVER SIGNATURES', {
+                page.drawText('DRIVER SIGNATURES StarTrack API Drivers and Contractors - Victoria', {
                     x: 30,
                     y: 562,
-                    size: 18,
+                    size: 15,
                     font: bold,
-                    color: rgb(0.09, 0.15, 0.16),
-                });
-                page.drawText('StarTrack API Drivers and Contractors - Victoria', {
-                    x: 30,
-                    y: 542,
-                    size: 10,
-                    font: regular,
                     color: rgb(0.09, 0.15, 0.16),
                 });
                 page.drawText(`${count} saved ${count === 1 ? 'signature' : 'signatures'}`, {
                     x: 30,
-                    y: 526,
+                    y: 542,
                     size: 9,
                     font: regular,
                     color: rgb(0.35, 0.43, 0.44),

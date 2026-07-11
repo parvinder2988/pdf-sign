@@ -186,7 +186,7 @@ class SignatureController extends Controller
                 'driverRunNumber' => $signature->driver_run_number,
                 'signedAt' => optional($signature->signed_at)
                     ->timezone('Australia/Melbourne')
-                    ->format('M d, Y h:i A T'),
+                    ->format('d/m/Y'),
                 'signatureUrl' => route('signatures.file', ['path' => $signature->signature_path]),
                 'signatureDataUrl' => $this->signatureDataUrl($signature),
             ])->values(),
